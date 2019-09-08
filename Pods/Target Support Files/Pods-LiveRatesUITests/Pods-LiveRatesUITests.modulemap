@@ -1,0 +1,6 @@
+framework module Pods_LiveRatesUITests {
+  umbrella header "Pods-LiveRatesUITests-umbrella.h"
+
+  export *
+  module * { export * }
+}

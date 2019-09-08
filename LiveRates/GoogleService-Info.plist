@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>346567612871-07bn8norn382v1v5dpvd3slvo78ijget.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.346567612871-07bn8norn382v1v5dpvd3slvo78ijget</string>
+	<key>API_KEY</key>
+	<string>AIzaSyC1gpGJVgWLkE-KC9azxsScHkimrGxI8VY</string>
+	<key>GCM_SENDER_ID</key>
+	<string>346567612871</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.13148059.LiveRates</string>
+	<key>PROJECT_ID</key>
+	<string>myiosapps-28617</string>
+	<key>STORAGE_BUCKET</key>
+	<string>myiosapps-28617.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:346567612871:ios:d755fbf06a3c0bb4</string>
+	<key>DATABASE_URL</key>
+	<string>https://myiosapps-28617.firebaseio.com</string>
+	<key>ADMOB_APP_ID</key>
+	<string>ca-app-pub-4235447962727236~9059060852</string>
+</dict>
+</plist>

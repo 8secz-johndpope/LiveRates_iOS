@@ -1,0 +1,6 @@
+framework module Pods_LiveRates {
+  umbrella header "Pods-LiveRates-umbrella.h"
+
+  export *
+  module * { export * }
+}
