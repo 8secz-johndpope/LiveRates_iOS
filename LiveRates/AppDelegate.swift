@@ -20,11 +20,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
+       
+        DispatchQueue.global().async {
+            _ = currencies[currencies.firstIndex(where: {$0.currency == "USD"})!].currency
+        }
         FirebaseApp.configure()
         IQKeyboardManager.shared.enable = true
         IQKeyboardManager.shared.keyboardDistanceFromTextField = 30
         GADMobileAds.sharedInstance().start(completionHandler: nil)
-        var sdk: STAStartAppSDK = STAStartAppSDK.sharedInstance()
+        let sdk: STAStartAppSDK = STAStartAppSDK.sharedInstance()
         sdk.appID = "206803047"
         sdk.devID = "169534589"
         sdk.disableReturnAd()

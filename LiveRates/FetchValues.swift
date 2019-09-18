@@ -23,12 +23,14 @@ var storedValuesPreviousCustom = Currency()
 var startFetchingAlreadyRunning = false
 var start: DispatchTime?
 var end: DispatchTime?
+var calledFromBackground = false
+var calledFromSubscription = false
 
-//#if DEBUG
-//let verifyReceiptURL = "https1://sandbox.itunes.apple.com/verifyReceipt"
-//#else
+#if DEBUG
+let verifyReceiptURL = "https://sandbox.itunes.apple.com/verifyReceipt"
+#else
 let verifyReceiptURL = "https://buy.itunes.apple.com/verifyReceipt"
-//#endif
+#endif
 
 var lastUpdated = String()
 var yesterday = ""
@@ -443,17 +445,25 @@ class FetchValues: UIViewController, GADInterstitialDelegate, SKProductsRequestD
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(true)
-        start = DispatchTime.now()
-        DispatchQueue.main.asyncAfter(deadline: .now()+1) {
-                 self.startFetching()
+       
+        if calledFromBackground{
+            calledFromBackground=false
+            DispatchQueue.main.asyncAfter(deadline: .now()+2) {
+                self.startFetching()
+            }
         }
+        else if calledFromSubscription{
+            calledFromSubscription=false
+            DispatchQueue.main.asyncAfter(deadline: .now()+0.5) {
+                self.startFetching()
+            }
+        }
+       
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        //NotificationCenter.default.addObserver(self, selector: #selector(willEnterForeground), name: UIApplication.didBecomeActiveNotification, object: nil)
-        
+         start = DispatchTime.now()
         dateFormatter.dateFormat = "yyyy-MM-dd"
         prevDate = dateFormatter.string(from: previousDay!)
         
@@ -461,24 +471,16 @@ class FetchValues: UIViewController, GADInterstitialDelegate, SKProductsRequestD
         yesterday = dateFormatter2.string(from: previousDay!)
         
         today = dateFormatter2.string(from: Date())
-        
+        premiumSubscriptionPurchased = UserDefaults.standard.bool(forKey: "premiumSubscriptionPurchased")
         self.fetchAvailableProducts()
-        homeViewInterstitial = GADInterstitial()
-        conversionViewInterstitial = GADInterstitial()
+        
+        startFetching()
+        
         startAppAdHomeInterstitial = STAStartAppAd()
         startAppAdConversionViewInterstitial = STAStartAppAd()
-        
     }
     
-    
-//        @objc func willEnterForeground(){
-//            DispatchQueue.main.asyncAfter(deadline: .now()+3) {
-//                if !startFetchingAlreadyRunning{
-//                     self.startFetching()
-//                }
-//            }
-//        }
-    
+
     
     func startFetching(){
         loadingScreenActivityIndicator.startAnimating()
@@ -491,8 +493,7 @@ class FetchValues: UIViewController, GADInterstitialDelegate, SKProductsRequestD
             
             localNotification()
             
-            receiptValidation(){ (receiptVerified) in
-            
+            receiptValidation { (receiptValidated) in
                 if !premiumSubscriptionPurchased{
                     if numberOfTimesLaunched>1{
                         if !admobHomeInterstitialAlreadyLoaded{
@@ -504,22 +505,20 @@ class FetchValues: UIViewController, GADInterstitialDelegate, SKProductsRequestD
                             startAppHomeAlreadyLoaded=true
                             print("Ad loading from startFetching Block - StartApp Home")
                             DispatchQueue.main.async {
-                                 startAppAdHomeInterstitial!.load(withDelegate: self)
+                                startAppAdHomeInterstitial!.load(withDelegate: self)
                             }
-                           
+                            
                         }
                         
                     }
                 }
+                UserDefaults.standard.set(premiumSubscriptionPurchased, forKey: "premiumSubscriptionPurchased")
             }
-            self.fetchJasonOfYesterday(prevDate){ (success1) in
-                if (success1==true){
-                    self.fetchJasonOfToday(){ (success2) in
-                        if (success2==true){
-                            self.performSegue(withIdentifier: "Enter", sender: nil)
-                            self.loadingScreenActivityIndicator.stopAnimating()
-                        }
-                    }
+            self.fetchJasonOfYesterday(prevDate)
+            self.fetchJasonOfToday(){ (success2) in
+                if (success2==true){
+                    self.performSegue(withIdentifier: "Enter", sender: nil)
+                    self.loadingScreenActivityIndicator.stopAnimating()
                 }
             }
         }
@@ -548,12 +547,10 @@ class FetchValues: UIViewController, GADInterstitialDelegate, SKProductsRequestD
     }
     
     
-    func fetchJasonOfYesterday(_ pDate: String, completion:@escaping (Bool)->Void){
-        var success1=true
-        //  storedValuesPrevious.source = ""
-        // storedValuesPrevious.quotes = ["":0.0]
+    func fetchJasonOfYesterday(_ pDate: String){//, completion:@escaping (Bool)->Void){
+
         let jsonURL = "https://apilayer.net/api/historical?access_key=7e4329ef9daa6adce5d7775a6719bcb4&date=\(pDate)&source=USD"
-        //print(jsonURL)
+   
         guard let url = URL(string: jsonURL) else {
             return
         }
@@ -567,10 +564,6 @@ class FetchValues: UIViewController, GADInterstitialDelegate, SKProductsRequestD
                 let values = try
                     JSONDecoder().decode(Currency.self, from: data)
                 storedValuesPrevious = values
-                DispatchQueue.main.async {
-                    success1=true
-                    completion(success1)
-                }
     
             } catch _{
                 print("Unable to fetch yesterday's data")
@@ -583,7 +576,7 @@ class FetchValues: UIViewController, GADInterstitialDelegate, SKProductsRequestD
     func fetchJasonOfToday(completion:@escaping (Bool)->Void){
         var success2=false
         let jsonURL = "https://apilayer.net/api/live?access_key=7e4329ef9daa6adce5d7775a6719bcb4&source=USD"
-        // print(jsonURL)
+   
         guard let url = URL(string: jsonURL) else {
             return
         }
@@ -601,7 +594,6 @@ class FetchValues: UIViewController, GADInterstitialDelegate, SKProductsRequestD
                 DispatchQueue.main.async {
                     success2=true
                     completion(success2)
-                    // print("Fetched Today's value")
                 }
             } catch _{
                 print("Unable to fetch today's data")
@@ -629,10 +621,8 @@ class FetchValues: UIViewController, GADInterstitialDelegate, SKProductsRequestD
                     JSONDecoder().decode(Currency.self, from: data)
                 storedValuesPreviousCustom = values
                 DispatchQueue.main.async {
-                    
                     success1=true
                     completion(success1)
-                    //print("Fetched yesterday's Value")
                 }
                 
             } catch _{
@@ -678,10 +668,10 @@ class FetchValues: UIViewController, GADInterstitialDelegate, SKProductsRequestD
     func didClose(_ ad: STAAbstractAd!) {
         if !premiumSubscriptionPurchased{
             if startAppHomeInterstitialPresented{
-               startAppHomeInterstitialPresented=false
-               startAppHomeAlreadyLoaded=true
-               startAppAdHomeInterstitial!.load(withDelegate: self)
-               print("StartApp Home Interstitial Dismissed and reloaded")
+                startAppHomeInterstitialPresented=false
+                startAppHomeAlreadyLoaded=true
+                startAppAdHomeInterstitial!.load(withDelegate: self)
+                print("StartApp Home Interstitial Dismissed and reloaded")
             }
         }
     }
@@ -690,7 +680,6 @@ class FetchValues: UIViewController, GADInterstitialDelegate, SKProductsRequestD
         print("Failed to load StartAppInterstitial")
         startAppHomeAlreadyLoaded=false
     }
-
     
     
 }
@@ -859,21 +848,25 @@ func receiptValidation(completion: @escaping (Bool)->Void) {
                     if expiryDate.compare(latestDay!) == .orderedDescending{
                         print("Valid")
                         premiumSubscriptionPurchased = true
+                        UserDefaults.standard.set(premiumSubscriptionPurchased, forKey: "premiumSubscriptionPurchased")
                         restoreStatus = true
                     }
                     else if expiryDate.compare(latestDay!) == .orderedSame{
                         print("Valid")
                         premiumSubscriptionPurchased = true
+                        UserDefaults.standard.set(premiumSubscriptionPurchased, forKey: "premiumSubscriptionPurchased")
                         restoreStatus = true
                     }else{
                         print("InValid")
                         premiumSubscriptionPurchased = false
+                        UserDefaults.standard.set(premiumSubscriptionPurchased, forKey: "premiumSubscriptionPurchased")
                         restoreStatus = false
                     }
                     receiptVerified = true
                     completion(receiptVerified)
                 }else{
                     premiumSubscriptionPurchased = false
+                    UserDefaults.standard.set(premiumSubscriptionPurchased, forKey: "premiumSubscriptionPurchased")
                     print("No Expiry Date found")
                     receiptVerified = true
                     completion(receiptVerified)
@@ -890,6 +883,10 @@ func receiptValidation(completion: @escaping (Bool)->Void) {
         completion(receiptVerified)
         print(parseError)
     }
+    
+    
+   
+
 }
 
 func getExpirationDateFromResponse(_ jsonResponse: NSDictionary) -> Date? {

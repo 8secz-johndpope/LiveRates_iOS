@@ -228,9 +228,9 @@ extension SearchCurrencies: UITableViewDelegate,UITableViewDataSource{
             searchedCurrency = searching ? searchResult[indexPath.row].currencyShort : currenciesName[indexPath.section][indexPath.row].currencyShort
             
             for i in selectedCurrencies{
-                if i == searchedCurrency{
+                if i.currName == searchedCurrency{
                     currencyAlreadyIsPresent = true
-                    alreadyPresentLocation=selectedCurrencies.firstIndex(where: {$0 == searchedCurrency})!
+                    alreadyPresentLocation=selectedCurrencies.firstIndex(where: {$0.currName == searchedCurrency})!
                     break
                 }else{
                     currencyAlreadyIsPresent = false
@@ -239,8 +239,8 @@ extension SearchCurrencies: UITableViewDelegate,UITableViewDataSource{
             if !currencyAlreadyIsPresent{
                 let hapticFeedback = UISelectionFeedbackGenerator()
                 hapticFeedback.selectionChanged()
-                selectedCurrencies.insert(searchedCurrency, at: selectedArrayIndex)
-                UserDefaults.standard.set(selectedCurrencies, forKey: "favoriteCurrencies")
+                selectedCurrencies.insert(favoriteCurrencies(currName: "\(searchedCurrency)", fullForm: currencies[currencies.firstIndex(where: {$0.currency == searchedCurrency})!].name, symbol: currencies[currencies.firstIndex(where: {$0.currency == searchedCurrency})!].symbol, image: (currencies[currencies.firstIndex(where: {$0.currency == searchedCurrency})!].image?.pngData()!)!), at: selectedArrayIndex)
+                storeFavCurrencies()
             }else{
                 let hapticFeedback = UINotificationFeedbackGenerator()
                 hapticFeedback.notificationOccurred(.warning)
@@ -264,8 +264,8 @@ extension SearchCurrencies: UITableViewDelegate,UITableViewDataSource{
         else if calledFrom == "plusButton"{
             searchedCurrency = searching ? searchResult[indexPath.row].currencyShort : currenciesName[indexPath.section][indexPath.row].currencyShort
             for i in selectedCurrencies{
-                if i == searchedCurrency{
-                    alreadyPresentLocation=selectedCurrencies.firstIndex(where: {$0 == searchedCurrency})!
+                if i.currName == searchedCurrency{
+                    alreadyPresentLocation=selectedCurrencies.firstIndex(where: {$0.currName == searchedCurrency})!
                     currencyAlreadyIsPresent = true
                     break
                 }else{
@@ -275,8 +275,11 @@ extension SearchCurrencies: UITableViewDelegate,UITableViewDataSource{
             if !currencyAlreadyIsPresent{
                 let hapticFeedback = UISelectionFeedbackGenerator()
                 hapticFeedback.selectionChanged()
-                selectedCurrencies.insert(searchedCurrency, at: 0)
-                UserDefaults.standard.set(selectedCurrencies, forKey: "favoriteCurrencies")
+                
+               
+                selectedCurrencies.insert(favoriteCurrencies(currName: "\(searchedCurrency)", fullForm: currencies[currencies.firstIndex(where: {$0.currency == searchedCurrency})!].name, symbol: currencies[currencies.firstIndex(where: {$0.currency == searchedCurrency})!].symbol, image: (currencies[currencies.firstIndex(where: {$0.currency == searchedCurrency})!].image?.pngData()!)!), at: 0)
+                
+                storeFavCurrencies()
             }else{
                 let hapticFeedback = UINotificationFeedbackGenerator()
                 hapticFeedback.notificationOccurred(.warning)
@@ -302,8 +305,8 @@ extension SearchCurrencies: UITableViewDelegate,UITableViewDataSource{
             for i in selectedCurrencies{
                 print("Searched Currency: \(searchedCurrency)")
                 //print(i)
-                if i == searchedCurrency{
-                    alreadyPresentLocation=selectedCurrencies.firstIndex(where: {$0 == searchedCurrency})!
+                if i.currName == searchedCurrency{
+                    alreadyPresentLocation=selectedCurrencies.firstIndex(where: {$0.currName == searchedCurrency})!
                     currencyAlreadyIsPresent = true
                     break
                 }else{
@@ -313,8 +316,11 @@ extension SearchCurrencies: UITableViewDelegate,UITableViewDataSource{
             if !currencyAlreadyIsPresent{
                 let hapticFeedback = UISelectionFeedbackGenerator()
                 hapticFeedback.selectionChanged()
-                selectedCurrencies[selectedArrayIndex] = searchedCurrency
-                UserDefaults.standard.set(selectedCurrencies, forKey: "favoriteCurrencies")
+                selectedCurrencies[selectedArrayIndex].currName = searchedCurrency
+                selectedCurrencies[selectedArrayIndex].image = (currencies[currencies.firstIndex(where: {$0.currency == searchedCurrency})!].image?.pngData()!)!
+                selectedCurrencies[selectedArrayIndex].fullForm = (currencies[currencies.firstIndex(where: {$0.currency == searchedCurrency})!].name)
+                selectedCurrencies[selectedArrayIndex].symbol = (currencies[currencies.firstIndex(where: {$0.currency == searchedCurrency})!].symbol)
+                storeFavCurrencies()
             }else{
                 let hapticFeedback = UINotificationFeedbackGenerator()
                 hapticFeedback.notificationOccurred(.warning)
@@ -337,7 +343,7 @@ extension SearchCurrencies: UITableViewDelegate,UITableViewDataSource{
         }
         else if calledFrom == "baseCurrency"{
             searchedCurrency = searching ? searchResult[indexPath.row].currencyShort : currenciesName[indexPath.section][indexPath.row].currencyShort
-            if searchedCurrency == baseCurrencyName{
+            if searchedCurrency == baseCurrencyName.currName{
                 currencyAlreadyIsPresent = true
             }else{
                 currencyAlreadyIsPresent = false
@@ -345,8 +351,11 @@ extension SearchCurrencies: UITableViewDelegate,UITableViewDataSource{
             if !currencyAlreadyIsPresent{
                 let hapticFeedback = UISelectionFeedbackGenerator()
                 hapticFeedback.selectionChanged()
-                baseCurrencyName = searchedCurrency
-                UserDefaults.standard.set(baseCurrencyName, forKey: "favoriteBaseCurrency")
+                baseCurrencyName.currName = searchedCurrency
+                baseCurrencyName.image = (currencies[currencies.firstIndex(where: {$0.currency == searchedCurrency})!].image?.pngData()!)!
+                baseCurrencyName.fullForm = (currencies[currencies.firstIndex(where: {$0.currency == searchedCurrency})!].name)
+                baseCurrencyName.symbol = (currencies[currencies.firstIndex(where: {$0.currency == searchedCurrency})!].symbol)
+                storeBaseCurrency()
             }else{
                 let hapticFeedback = UINotificationFeedbackGenerator()
                 hapticFeedback.notificationOccurred(.warning)

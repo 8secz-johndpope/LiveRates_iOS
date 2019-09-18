@@ -261,6 +261,8 @@ class SubscriptionViewController: UIViewController, SKPaymentTransactionObserver
                                 case .default:
                                     print("default")
                                     if premiumSubscriptionPurchased{
+                                        UserDefaults.standard.set(premiumSubscriptionPurchased, forKey: "premiumSubscriptionPurchased")
+                                        calledFromSubscription=true
                                         DispatchQueue.main.asyncAfter(deadline: .now(), execute: {
                                             self.dismiss(animated: true, completion: nil)
                                         })
@@ -294,7 +296,9 @@ class SubscriptionViewController: UIViewController, SKPaymentTransactionObserver
                                 case .default:
                                     print("default")
                                     if premiumSubscriptionPurchased{
-                                        DispatchQueue.main.asyncAfter(deadline: .now()+1, execute: {
+                                        UserDefaults.standard.set(premiumSubscriptionPurchased, forKey: "premiumSubscriptionPurchased")
+                                        calledFromSubscription=true
+                                        DispatchQueue.main.asyncAfter(deadline: .now()+0.5, execute: {
                                             self.dismiss(animated: true, completion: nil)
                                         })
                                     }
@@ -350,6 +354,8 @@ class SubscriptionViewController: UIViewController, SKPaymentTransactionObserver
                             switch action.style{
                             case .default:
                                 print("default")
+                                UserDefaults.standard.set(premiumSubscriptionPurchased, forKey: "premiumSubscriptionPurchased")
+                                calledFromSubscription=true
                                 self.dismiss(animated: true, completion: nil)
                                 
                             case .cancel:

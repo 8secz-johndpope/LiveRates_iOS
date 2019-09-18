@@ -84,8 +84,8 @@ class CurrencyCell: UITableViewCell{
     func calculateValue(_ baseCurr: String, _ targetCurr: String){
         let loadCurrencyValue = LoadCurrencyValues()
         let (cValue,pValue) = loadCurrencyValue.loadCurrencyValue(baseCurr, targetCurr,storedValuesCurrent,storedValuesPrevious)
-        self.currencyButton.setImage(currencies[currencies.firstIndex(where: {$0.currency == selectedCurrencies[index!.row]})!].image, for: .normal)
-        self.currencyLabel.text!=selectedCurrencies[index!.row]
+        self.currencyButton.setImage(UIImage(data:selectedCurrencies[index!.row].image), for: .normal)
+        self.currencyLabel.text!=selectedCurrencies[index!.row].currName
         self.currentValue.text = String(format: "%.4f",cValue)
         self.currencyConversion()
         let cPercent = ((cValue - pValue ) / pValue) * 100
@@ -95,7 +95,7 @@ class CurrencyCell: UITableViewCell{
     func formatButton(_ button: UIButton?, _ percentage: Float){
         button?.layer.cornerRadius = 5
         print(percentage)
-        if baseCurrencyName != selectedCurrencies[index!.row]{
+        if baseCurrencyName.currName != selectedCurrencies[index!.row].currName{
             if percentage < 0.00{
                 button?.setTitle(" -"+String(format: "%.2f", abs(percentage))+"% "+" ", for: .normal)
                 button?.layer.borderColor = #colorLiteral(red: 1, green: 0.1491314173, blue: 0, alpha: 1)
@@ -134,10 +134,10 @@ class CurrencyCell: UITableViewCell{
             numberFormatter.maximumFractionDigits = 2
             numberFormatter.numberStyle = .decimal
             let value = numberFormatter.string(from: NSNumber(value: Double(self.currentValue.text!)!*Double(baseCurrencyAmountGlobal)!))
-            self.convertedValue.text = currencies[currencies.firstIndex(where: {$0.currency == selectedCurrencies[index!.row]})!].symbol + " " + value!
+            self.convertedValue.text = selectedCurrencies[index!.row].symbol + " " + value!
         }
         else{
-            self.convertedValue.text = currencies[currencies.firstIndex(where: {$0.currency == selectedCurrencies[index!.row]})!].symbol
+            self.convertedValue.text = selectedCurrencies[index!.row].symbol
         }
     }
 }

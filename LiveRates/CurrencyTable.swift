@@ -11,8 +11,20 @@ import StoreKit
 import GoogleMobileAds
 import MessageUI
 
-var selectedCurrencies = ["Select"]
-var baseCurrencyName = ""
+
+
+struct favoriteCurrencies: Codable{
+    var currName = ""
+    var fullForm = ""
+    var symbol = ""
+    var image: Data = UIImage(named: "add.png")!.pngData()!
+}
+
+
+var selectedCurrencies = [favoriteCurrencies(currName: "Select", fullForm: "Select", symbol: "$", image: UIImage(named: "add.png")!.pngData()!)]
+
+var baseCurrencyName = favoriteCurrencies(currName: "Select", fullForm: "Select", symbol: "$", image: UIImage(named: "add.png")!.pngData()!)
+
 var targetCurrencyName = ""
 var calledFrom = ""
 var baseCurrencyAmountGlobal = ""
@@ -24,6 +36,7 @@ var alreadyPresentLocation = Int()
 var inserted = false
 var tableAnimationDone = Bool()
 var selectedCurrenciesForSharing = ["Forex Rates"]
+var localCurrencyCode = "USD"
 extension UITextField{
     @IBInspectable var placeHolderColor: UIColor?{
         get{
@@ -469,6 +482,7 @@ class CurrencyTable: UIViewController, UITextFieldDelegate, UITabBarDelegate, GA
    
     
     override func viewDidAppear(_ animated: Bool) {
+        
         end = DispatchTime.now()
         DispatchQueue.main.asyncAfter(deadline: .now()+4) {
             startFetchingAlreadyRunning=false
@@ -504,6 +518,18 @@ class CurrencyTable: UIViewController, UITextFieldDelegate, UITabBarDelegate, GA
             tableView.isUserInteractionEnabled=true
         }
         
+        
+        if !premiumSubscriptionPurchased{
+            removeAdButton.setImage(UIImage(named: "Cart"), for: .normal)
+            removeAd.setTitle("Remove Ads", for: .normal)
+        }else{
+            removeAdButton.setImage(UIImage(named: "Support"), for: .normal)
+            removeAd.setTitle("Support", for: .normal)
+            if homeViewBanner != nil{
+                homeViewBanner.removeFromSuperview()
+            }
+        }
+        
         firstLaunch = false
         
         
@@ -524,7 +550,7 @@ class CurrencyTable: UIViewController, UITextFieldDelegate, UITabBarDelegate, GA
    
     override func viewWillAppear(_ animated: Bool) {
         
-        
+        premiumSubscriptionPurchased = UserDefaults.standard.bool(forKey: "premiumSubscriptionPurchased")
         tableView.allowsMultipleSelection = false
         tableView.allowsMultipleSelectionDuringEditing = false
         sharingEnabled = false
@@ -621,8 +647,10 @@ class CurrencyTable: UIViewController, UITextFieldDelegate, UITabBarDelegate, GA
             else if calledFrom == "baseCurrency"{
                 calledFrom=""
                 if !currencyAlreadyIsPresent{
-                    baseCurrency.text = baseCurrencyName
-                    baseCurrencyImageButton.setImage(currencies[currencies.firstIndex(where: {$0.currency==baseCurrency.text!})!].image, for: .normal)
+                    
+                    baseCurrency.text = baseCurrencyName.currName
+                    baseCurrencyImageButton.setImage(UIImage(data:baseCurrencyName.image), for: .normal)
+                    
                     self.navigationController?.hidesBarsWhenKeyboardAppears = false
                     tableView.reloadData()
                     UIView.animate(withDuration: 0.9, animations: {
@@ -658,6 +686,9 @@ class CurrencyTable: UIViewController, UITextFieldDelegate, UITabBarDelegate, GA
         }else{
             removeAdButton.setImage(UIImage(named: "Support"), for: .normal)
             removeAd.setTitle("Support", for: .normal)
+            if homeViewBanner != nil{
+                homeViewBanner.removeFromSuperview()
+            }
         }
         moreButton.setImage(UIImage(named: "More"), for: .normal)
         more.setTitle("More", for: .normal)
@@ -701,7 +732,7 @@ class CurrencyTable: UIViewController, UITextFieldDelegate, UITabBarDelegate, GA
         tableAnimationDone = false
         clearButton.isHidden=true
         
-        NotificationCenter.default.addObserver(self, selector: #selector(didEnterBackground), name: UIApplication.willResignActiveNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(didEnterBackground), name: UIApplication.didEnterBackgroundNotification, object: nil)
         baseCurrencyAmount.addTarget(self, action: #selector(reloadTableData), for: [.touchDown,.editingChanged])
         baseCurrency.addTarget(self, action: #selector(selectBaseCurrency), for: .touchDown)
        
@@ -714,21 +745,23 @@ class CurrencyTable: UIViewController, UITextFieldDelegate, UITabBarDelegate, GA
         tableView.allowsSelection = true
         baseCurrency.delegate = self
         baseCurrency.inputView = emptyView
+        doneButton.tintColor = #colorLiteral(red: 1, green: 0.5764705882, blue: 0, alpha: 1)
+        cancelButton.tintColor = #colorLiteral(red: 1, green: 0.5764705882, blue: 0, alpha: 1)
         toolBar.setItems([cancelButton,flexibleSpace,doneButton], animated: true)
         toolBar.sizeToFit()
         toolBar.barStyle = .blackTranslucent
         toolBar.tintColor = #colorLiteral(red: 0.9039215803, green: 0.9039215803, blue: 0.9039215803, alpha: 1)
         
         let locale = Locale.current
-        var localCurrencyCode = "USD"
+        localCurrencyCode = "USD"
         localCurrencyCode = locale.currencyCode!
         print(localCurrencyCode)
         
-        baseCurrencyName = UserDefaults.standard.string(forKey: "favoriteBaseCurrency") ?? String (localCurrencyCode)
-        baseCurrency.text = baseCurrencyName
-        selectedCurrencies = UserDefaults.standard.stringArray(forKey: "favoriteCurrencies") ?? [String](["Select"])
-        baseCurrencyImageButton.setImage(currencies[currencies.firstIndex(where: {$0.currency == baseCurrencyName})!].image, for: .normal)
-  
+        fetchBaseCurrency()
+        baseCurrency.text = baseCurrencyName.currName
+        baseCurrencyImageButton.setImage(UIImage(data:baseCurrencyName.image), for: .normal)
+        fetchFavCurrencies()
+
         baseCurrency.layer.cornerRadius = baseCurrency.frame.size.height/2
         baseCurrency.layer.masksToBounds = true
         baseCurrencyAmount.layer.cornerRadius = baseCurrencyAmount.frame.size.height/2
@@ -746,7 +779,6 @@ class CurrencyTable: UIViewController, UITextFieldDelegate, UITabBarDelegate, GA
             shareCurrencyText.isHidden=false
             shareCurrencyButton.isHidden=false
         }
-        
         if premiumSubscriptionPurchased{
             removeAdButton.setImage(UIImage(named: "Support"), for: .normal)
             removeAd.setTitle("Support", for: .normal)
@@ -782,16 +814,18 @@ class CurrencyTable: UIViewController, UITextFieldDelegate, UITabBarDelegate, GA
             homeViewBanner.delegate=self
         }
         
+        
+        
     }
     
     
     
     func adManagement(){
        
-        
+        DispatchQueue.main.asyncAfter(deadline: .now()+6, execute: {
         if !premiumSubscriptionPurchased && numberOfTimesLaunched > 1 {
             
-            DispatchQueue.main.asyncAfter(deadline: .now()+3, execute: {
+            
                 if homeViewInterstitial.isReady {
                     firstLaunch = true
                     homeViewInterstitial.delegate = self
@@ -813,22 +847,24 @@ class CurrencyTable: UIViewController, UITextFieldDelegate, UITabBarDelegate, GA
                         })
                     }
                 }
-            })
+            
         }else{
             DispatchQueue.main.asyncAfter(deadline: .now()+1.5) {
                 self.tableCellAnimation()
             }
         }
+        
+        })
+        
     }
     
     
     @objc func didEnterBackground(){
         baseCurrencyAmountGlobal = ""
+        calledFromBackground = true
         self.dismiss(animated: false, completion: nil)
     }
     
-    
-  
     
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
         
@@ -1050,15 +1086,15 @@ extension CurrencyTable: UITableViewDataSource, UITableViewDelegate{
         cell?.currencyButton.setImage(UIImage(named: "add.png"), for: .normal)
         cell?.currencyAttributesStackView.isHidden=true
         cell?.percentValue.setTitle("--", for: .normal)
-        cell?.convertedValue.text = currencies[currencies.firstIndex(where: {$0.currency == selectedCurrencies[indexPath.row]})!].symbol
-        cell?.currencyLabel.text = selectedCurrencies[indexPath.row]
-        cell?.currencyButton.setImage(currencies[currencies.firstIndex(where: {$0.currency == selectedCurrencies[indexPath.row]})!].image, for: .normal)
+        cell?.convertedValue.text = selectedCurrencies[indexPath.row].symbol
+        cell?.currencyLabel.text = selectedCurrencies[indexPath.row].currName
+        cell?.currencyButton.setImage(UIImage(data: selectedCurrencies[indexPath.row].image), for: .normal)
         cell?.currencyLabel.isHidden = false
         cell?.currencyAttributesStackView.isHidden=false
         cell?.currencyButton.isHidden=false
         cell?.addButton.isHidden=true
-        cell?.calculateValue(baseCurrencyName, selectedCurrencies[indexPath.row])
-        cell?.currencyFullForm.text  = currencies[currencies.firstIndex(where: {$0.currency == selectedCurrencies[indexPath.row]})!].name
+        cell?.calculateValue(baseCurrencyName.currName, selectedCurrencies[indexPath.row].currName)
+        cell?.currencyFullForm.text  = selectedCurrencies[indexPath.row].fullForm
         if cell?.currencyLabel.text == "Select"{
             cell?.currencyLabel.isHidden = true
             cell?.currencyAttributesStackView.isHidden=true
@@ -1070,7 +1106,7 @@ extension CurrencyTable: UITableViewDataSource, UITableViewDelegate{
             numberFormatter.numberStyle = .decimal
             numberFormatter.maximumFractionDigits = 2
             let value = numberFormatter.string(from: NSNumber(value: Double(cell!.currentValue.text!)!*Double(baseCurrencyAmountGlobal)!))
-            cell?.convertedValue.text = currencies[currencies.firstIndex(where: {$0.currency == selectedCurrencies[indexPath.row]})!].symbol + " " + value!
+            cell?.convertedValue.text = selectedCurrencies[indexPath.row].symbol + " " + value!
         }
         if selectedCurrencies.count == 1{
             cell?.hint.isHidden=false
@@ -1124,7 +1160,7 @@ extension CurrencyTable: UITableViewDataSource, UITableViewDelegate{
             })
             selectedCurrencies.remove(at: indexPath.row)
             tableView.deleteRows(at: [indexPath], with: UITableView.RowAnimation.automatic)
-            UserDefaults.standard.set(selectedCurrencies, forKey: "favoriteCurrencies")
+            storeFavCurrencies()
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) { // to reload the table after the completion of animation
                 tableView.reloadData()
                 if selectedCurrencies.count-1 == 0{
@@ -1156,14 +1192,26 @@ extension CurrencyTable: UITableViewDataSource, UITableViewDelegate{
             let alert = UIAlertController(title: "Swap with base currency", message: "Do you want to swap the Quote Currency: \(selectedCurrencies[indexPath.row]) with Base Currency: \(self.baseCurrency.text!)?", preferredStyle: .actionSheet)
             alert.addAction(UIAlertAction(title: "Yes", style: .default, handler: { action in
                 print("default")
+                
                 let temp = self.baseCurrency.text
-                self.baseCurrency.text = selectedCurrencies[indexPath.row]
-                baseCurrencyName = self.baseCurrency.text!
-                self.baseCurrencyImageButton.setImage(currencies[currencies.firstIndex(where: {$0.currency == self.baseCurrency.text!})!].image, for: .normal)
-                selectedCurrencies[indexPath.row] = temp!
-                print(selectedCurrencies)
-                UserDefaults.standard.set(baseCurrencyName, forKey: "favoriteBaseCurrencies")
-                UserDefaults.standard.set(selectedCurrencies, forKey: "favoriteCurrencies")
+                
+                
+                self.baseCurrency.text = selectedCurrencies[indexPath.row].currName
+                baseCurrencyName.currName = selectedCurrencies[indexPath.row].currName
+                baseCurrencyName.symbol = currencies[currencies.firstIndex(where: {$0.currency == selectedCurrencies[indexPath.row].currName})!].symbol
+                baseCurrencyName.fullForm = currencies[currencies.firstIndex(where: {$0.currency == selectedCurrencies[indexPath.row].currName})!].name
+                baseCurrencyName.image = currencies[currencies.firstIndex(where: {$0.currency == selectedCurrencies[indexPath.row].currName})!].image!.pngData()!
+                self.baseCurrencyImageButton.setImage(UIImage(data:baseCurrencyName.image), for: .normal)
+                
+                
+                selectedCurrencies[indexPath.row].currName = temp!
+                selectedCurrencies[indexPath.row].fullForm = currencies[currencies.firstIndex(where: {$0.currency == temp!})!].name
+                selectedCurrencies[indexPath.row].symbol = currencies[currencies.firstIndex(where: {$0.currency == temp!})!].symbol
+                selectedCurrencies[indexPath.row].image = (currencies[currencies.firstIndex(where: {$0.currency == temp!})!].image?.pngData()!)!
+                
+                storeBaseCurrency()
+                storeFavCurrencies()
+                
                 tableView.reloadData()
                 let hapticFeedback = UINotificationFeedbackGenerator()
                 hapticFeedback.notificationOccurred(.success)
@@ -1187,7 +1235,7 @@ extension CurrencyTable: UITableViewDataSource, UITableViewDelegate{
                     var duplicate = false
                     var atRow = 0
                     for i in 0..<indexPath.row{
-                        if selectedCurrencies[indexPath.row] == selectedCurrencies[i]{
+                        if selectedCurrencies[indexPath.row].currName == selectedCurrencies[i].currName{
                             duplicate = true
                             atRow = i
                             
@@ -1195,7 +1243,7 @@ extension CurrencyTable: UITableViewDataSource, UITableViewDelegate{
                         }
                     }
                     for i in indexPath.row+1...selectedCurrencies.count-1{
-                        if selectedCurrencies[indexPath.row] == selectedCurrencies[i]{
+                        if selectedCurrencies[indexPath.row].currName == selectedCurrencies[i].currName{
                             duplicate = true
                             atRow = i
                             break
@@ -1209,7 +1257,7 @@ extension CurrencyTable: UITableViewDataSource, UITableViewDelegate{
                         tableView.deleteRows(at: [IndexPath(row: atRow, section: 0)], with: .automatic)
                         DispatchQueue.main.asyncAfter(deadline: .now()+0.5, execute: {
                             tableView.reloadData()
-                            UserDefaults.standard.set(selectedCurrencies, forKey: "favoriteCurrencies")
+                            storeFavCurrencies()
                             if selectedCurrencies.count-1 == 0{
                                 self.shareCurrencyText.isHidden=true
                                 self.shareCurrencyButton.isHidden=true
@@ -1246,7 +1294,7 @@ extension CurrencyTable: UITableViewDataSource, UITableViewDelegate{
             var currencyInfo = ""
             var currencyInfoText = ""
             let loadCurrencyValue = LoadCurrencyValues()
-            let (cValue,_) = loadCurrencyValue.loadCurrencyValue(self.baseCurrency.text!, selectedCurrencies[indexPath.row],storedValuesCurrent,storedValuesPrevious)
+            let (cValue,_) = loadCurrencyValue.loadCurrencyValue(self.baseCurrency.text!, selectedCurrencies[indexPath.row].currName,storedValuesCurrent,storedValuesPrevious)
             
            
             let cValueText = String(format: "%0.2f", cValue)
@@ -1278,7 +1326,7 @@ extension CurrencyTable: UITableViewDataSource, UITableViewDelegate{
         if selectedCurrencies.count-1 == indexPath.row{
             return false
         }
-        else if selectedCurrencies[0] == "Select"{
+        else if selectedCurrencies[0].currName == "Select"{
             return false
         }
         else{
@@ -1298,12 +1346,12 @@ extension CurrencyTable: UITableViewDataSource, UITableViewDelegate{
             let item = selectedCurrencies[sourceIndexPath.row]
             selectedCurrencies.remove(at: sourceIndexPath.row)
             selectedCurrencies.insert(item, at: destinationIndexPath.row)
-            UserDefaults.standard.set(selectedCurrencies, forKey: "favoriteCurrencies")
+            storeFavCurrencies()
             print(selectedCurrencies)
     }
     
     func tableView(_ tableView: UITableView, targetIndexPathForMoveFromRowAt sourceIndexPath: IndexPath, toProposedIndexPath proposedDestinationIndexPath: IndexPath) -> IndexPath {
-        if selectedCurrencies[proposedDestinationIndexPath.row] == "Select"{
+        if selectedCurrencies[proposedDestinationIndexPath.row].currName == "Select"{
             return sourceIndexPath
         }else{
             return proposedDestinationIndexPath
@@ -1324,7 +1372,7 @@ extension CurrencyTable: UITableViewDataSource, UITableViewDelegate{
         if selectedCurrencies.count-1 == indexPath.row{
             return false
         }
-        else if selectedCurrencies[0] == "Select"{
+        else if selectedCurrencies[0].currName == "Select"{
             return false
         }
         else{
@@ -1334,7 +1382,7 @@ extension CurrencyTable: UITableViewDataSource, UITableViewDelegate{
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if sharingEnabled{
-            selectedCurrenciesForSharing.append(selectedCurrencies[indexPath.row])
+            selectedCurrenciesForSharing.append(selectedCurrencies[indexPath.row].currName)
           
             print("\n\(selectedCurrenciesForSharing)")
             if selectedCurrenciesForSharing.count <= 1{
@@ -1358,7 +1406,7 @@ extension CurrencyTable: UITableViewDataSource, UITableViewDelegate{
     func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {
         if sharingEnabled{
         
-                    selectedCurrenciesForSharing.remove(at: selectedCurrenciesForSharing.firstIndex(where: {$0 == selectedCurrencies[indexPath.row]})!)
+                    selectedCurrenciesForSharing.remove(at: selectedCurrenciesForSharing.firstIndex(where: {$0 == selectedCurrencies[indexPath.row].currName})!)
             print(selectedCurrenciesForSharing)
             if selectedCurrenciesForSharing.count <= 1{
                 removeAdButton.isEnabled = false
@@ -1407,7 +1455,7 @@ extension CurrencyTable: TableCellProtocol, MFMailComposeViewControllerDelegate{
             backItem.tintColor = #colorLiteral(red: 1, green: 0.5763723254, blue: 0, alpha: 1)
             self.navigationItem.backBarButtonItem = backItem
             historyArray[0] = baseCurrency.text!
-            historyArray[1] = selectedCurrencies[index]
+            historyArray[1] = selectedCurrencies[index].currName
             performSegue(withIdentifier: "ShowDetailHistoryViewController", sender: nil)
         }
     }
@@ -1526,9 +1574,39 @@ extension CurrencyTable: TableCellProtocol, MFMailComposeViewControllerDelegate{
         print("interstitialWillLeaveApplication")
     }
     
-
 }
 
+
+func storeFavCurrencies(){
+    let dataToBeStored = try? PropertyListEncoder().encode(selectedCurrencies)
+    UserDefaults.standard.set(dataToBeStored, forKey: "favoriteCurrencies")
+}
+
+func fetchFavCurrencies(){
+    if let dataFetched = UserDefaults.standard.data(forKey: "favoriteCurrencies"){
+        selectedCurrencies = try! PropertyListDecoder().decode([favoriteCurrencies].self, from: dataFetched)
+    }else{
+       selectedCurrencies = [favoriteCurrencies(currName: "Select", fullForm: "Select", symbol: "$", image: UIImage(named: "add.png")!.pngData()!)]
+    }
+    
+}
+
+func storeBaseCurrency(){
+    let dataToBeStored = try? PropertyListEncoder().encode(baseCurrencyName)
+    UserDefaults.standard.set(dataToBeStored, forKey: "favoriteBaseCurrency")
+}
+
+func fetchBaseCurrency(){
+    if let dataFetched = UserDefaults.standard.data(forKey: "favoriteBaseCurrency"){
+        baseCurrencyName = try! PropertyListDecoder().decode(favoriteCurrencies.self, from: dataFetched)
+    }else{
+        baseCurrencyName.currName = localCurrencyCode
+        baseCurrencyName.symbol = currencies[currencies.firstIndex(where: {$0.currency == localCurrencyCode})!].symbol
+        baseCurrencyName.fullForm = currencies[currencies.firstIndex(where: {$0.currency == localCurrencyCode})!].name
+        baseCurrencyName.image = currencies[currencies.firstIndex(where: {$0.currency == localCurrencyCode})!].image!.pngData()!
+        storeBaseCurrency()
+    }
+}
 
 
 
