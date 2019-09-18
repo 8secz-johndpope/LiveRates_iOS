@@ -26,11 +26,11 @@ var end: DispatchTime?
 var calledFromBackground = false
 var calledFromSubscription = false
 
-#if DEBUG
-let verifyReceiptURL = "https://sandbox.itunes.apple.com/verifyReceipt"
-#else
+//#if DEBUG
+//let verifyReceiptURL = "https1://sandbox.itunes.apple.com/verifyReceipt1"
+//#else
 let verifyReceiptURL = "https://buy.itunes.apple.com/verifyReceipt"
-#endif
+//#endif
 
 var lastUpdated = String()
 var yesterday = ""
@@ -471,7 +471,6 @@ class FetchValues: UIViewController, GADInterstitialDelegate, SKProductsRequestD
         yesterday = dateFormatter2.string(from: previousDay!)
         
         today = dateFormatter2.string(from: Date())
-        premiumSubscriptionPurchased = UserDefaults.standard.bool(forKey: "premiumSubscriptionPurchased")
         self.fetchAvailableProducts()
         
         startFetching()
@@ -483,6 +482,9 @@ class FetchValues: UIViewController, GADInterstitialDelegate, SKProductsRequestD
 
     
     func startFetching(){
+        
+        premiumSubscriptionPurchased = UserDefaults.standard.bool(forKey: "premiumSubscriptionPurchased")
+        
         loadingScreenActivityIndicator.startAnimating()
         let networkStatus = CheckNetwork()
         if (networkStatus.connectedToNetwork()){
@@ -501,15 +503,11 @@ class FetchValues: UIViewController, GADInterstitialDelegate, SKProductsRequestD
                             print("Ad loading from startFetching Block - Admob Home")
                             homeViewInterstitial = createAndLoadInterstitial("ca-app-pub-4235447962727236/4167850341")
                         }
-                        if !startAppHomeAlreadyLoaded{
-                            startAppHomeAlreadyLoaded=true
-                            print("Ad loading from startFetching Block - StartApp Home")
-                            DispatchQueue.main.async {
-                                startAppAdHomeInterstitial!.load(withDelegate: self)
-                            }
-                            
-                        }
                         
+                        print("Ad loading from startFetching Block - StartApp Home")
+                        DispatchQueue.main.async {
+                            startAppAdHomeInterstitial!.load(withDelegate: self)
+                        }
                     }
                 }
                 UserDefaults.standard.set(premiumSubscriptionPurchased, forKey: "premiumSubscriptionPurchased")

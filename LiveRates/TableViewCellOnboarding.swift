@@ -1,9 +1,9 @@
 //
-//  UITableView+Onboarding.swift
-//  TableViewTricks
+//  Currency Table.swift
+//  Forex Wallet
 //
-//  Created by Tim Colla on 20/07/2018.
-//  Copyright © 2018 Marino Software. All rights reserved.
+//  Created by Aruna Sairam Manjunatha on 13/6/19.
+//  Copyright © 2019 Aruna Sairam Manjunatha. All rights reserved.
 //
 
 import UIKit

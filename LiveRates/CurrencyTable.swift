@@ -1105,7 +1105,9 @@ extension CurrencyTable: UITableViewDataSource, UITableViewDelegate{
             let numberFormatter = NumberFormatter()
             numberFormatter.numberStyle = .decimal
             numberFormatter.maximumFractionDigits = 2
-            let value = numberFormatter.string(from: NSNumber(value: Double(cell!.currentValue.text!)!*Double(baseCurrencyAmountGlobal)!))
+            let loadCurrencyValue = LoadCurrencyValues()
+             let (cValue,_) = loadCurrencyValue.loadCurrencyValue(self.baseCurrency.text!, selectedCurrencies[indexPath.row].currName,storedValuesCurrent,storedValuesPrevious)
+            let value = numberFormatter.string(from: NSNumber(value: Double(cValue)*Double(baseCurrencyAmountGlobal)!))
             cell?.convertedValue.text = selectedCurrencies[indexPath.row].symbol + " " + value!
         }
         if selectedCurrencies.count == 1{
@@ -1189,7 +1191,7 @@ extension CurrencyTable: UITableViewDataSource, UITableViewDelegate{
         let swap = UIContextualAction(style: .normal, title: "Swap"){(action,view,nil) in
             tableView.setEditing(false, animated: true)
             print("Swap Button Clicked")
-            let alert = UIAlertController(title: "Swap with base currency", message: "Do you want to swap the Quote Currency: \(selectedCurrencies[indexPath.row]) with Base Currency: \(self.baseCurrency.text!)?", preferredStyle: .actionSheet)
+            let alert = UIAlertController(title: "Swap with base currency", message: "Do you want to swap the Quote Currency: \(selectedCurrencies[indexPath.row].currName) with Base Currency: \(self.baseCurrency.text!)?", preferredStyle: .actionSheet)
             alert.addAction(UIAlertAction(title: "Yes", style: .default, handler: { action in
                 print("default")
                 
@@ -1303,11 +1305,11 @@ extension CurrencyTable: UITableViewDataSource, UITableViewDelegate{
                 numberFormatter.numberStyle = .decimal
                 numberFormatter.maximumFractionDigits = 2
                 let value = numberFormatter.string(from: NSNumber(value: Double(cValue)*Double(baseCurrencyAmountGlobal)!))
-                currencyInfo = "\(1)). Rate:\n     1 \(self.baseCurrency.text!) = \(cValueText) \(selectedCurrencies[indexPath.row])\n     Conversion:\n     \(self.baseCurrencyAmount.text!) \(self.baseCurrency.text!) = \(value!) \(selectedCurrencies[indexPath.row])\n\n"
+                currencyInfo = "\(1)). Rate:\n     1 \(self.baseCurrency.text!) = \(cValueText) \(selectedCurrencies[indexPath.row].currName)\n     Conversion:\n     \(self.baseCurrencyAmount.text!) \(self.baseCurrency.text!) = \(value!) \(selectedCurrencies[indexPath.row].currName)\n\n"
                 currencyInfoText = "Forex Rates"+"\n\n"+currencyInfo+"Last updated on \(lastUpdated)\n\n"+"By: LiveRates"
             }
             else{
-                currencyInfo = "\(1)). Rate:\n     1 \(self.baseCurrency.text!) = \(cValueText) \(selectedCurrencies[indexPath.row])\n\n"
+                currencyInfo = "\(1)). Rate:\n     1 \(self.baseCurrency.text!) = \(cValueText) \(selectedCurrencies[indexPath.row].currName)\n\n"
                 currencyInfoText = "Forex Rates"+"\n\n"+currencyInfo+"Last updated on \(lastUpdated)\n\n"+"By: LiveRates"
             }
             
