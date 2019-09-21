@@ -1,6 +1,6 @@
 //
 //  CheckNetwork.swift
-//  Forex Wallet
+//  LiveRates
 //
 //  Created by Aruna Sairam Manjunatha on 3/6/19.
 //  Copyright © 2019 Aruna Sairam Manjunatha. All rights reserved.
