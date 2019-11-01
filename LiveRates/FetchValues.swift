@@ -640,7 +640,7 @@ class FetchValues: UIViewController, GADInterstitialDelegate, SKProductsRequestD
         // Step 2: Create the notification content
         let content = UNMutableNotificationContent()
         content.title = "Hey, the latest rates are here!"
-        content.body = "Change is the only constant in life, did you check the latest Forex rates?"
+        content.body = "Change is the only constant, did you check the latest Forex rates?"
         
         // Step 3: Create the notification trigger
         var dateComponents = DateComponents()

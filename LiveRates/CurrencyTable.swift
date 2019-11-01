@@ -728,10 +728,22 @@ class CurrencyTable: UIViewController, UITextFieldDelegate, UITabBarDelegate, GA
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        self.navigationController?.navigationBar.barStyle = .black
+        if #available(iOS 13.0, *) {
+            let navBarAppearance = UINavigationBarAppearance()
+            navBarAppearance.configureWithOpaqueBackground()
+            navBarAppearance.titleTextAttributes = [.foregroundColor: UIColor.white]
+            navBarAppearance.largeTitleTextAttributes = [.foregroundColor: UIColor.white]
+            navBarAppearance.backgroundColor = #colorLiteral(red: 0.0700000003, green: 0.0700000003, blue: 0.0700000003, alpha: 1)
+            self.navigationController?.navigationBar.standardAppearance = navBarAppearance
+            self.navigationController?.navigationBar.scrollEdgeAppearance = navBarAppearance
+        }
         firstLaunch=true
         tableAnimationDone = false
         clearButton.isHidden=true
         
+        self.pullToRefresh.tintColor = #colorLiteral(red: 0.6000000238, green: 0.6000000238, blue: 0.6000000238, alpha: 1)
+       // self.pullToRefresh.backgroundColor = #colorLiteral(red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0)
         NotificationCenter.default.addObserver(self, selector: #selector(didEnterBackground), name: UIApplication.didEnterBackgroundNotification, object: nil)
         baseCurrencyAmount.addTarget(self, action: #selector(reloadTableData), for: [.touchDown,.editingChanged])
         baseCurrency.addTarget(self, action: #selector(selectBaseCurrency), for: .touchDown)
@@ -800,7 +812,9 @@ class CurrencyTable: UIViewController, UITextFieldDelegate, UITabBarDelegate, GA
             backItem.tintColor = #colorLiteral(red: 0.06274509804, green: 0.06274509804, blue: 0.06274509804, alpha: 1)
             backItem.isEnabled=false
             self.navigationItem.backBarButtonItem = backItem
-            performSegue(withIdentifier: "segueToSubscriptionVCFromHome", sender: nil)
+            DispatchQueue.main.asyncAfter(deadline: .now()+2) {
+                self.performSegue(withIdentifier: "segueToSubscriptionVCFromHome", sender: nil)
+            }
         }
         else{
           adManagement()
@@ -814,15 +828,16 @@ class CurrencyTable: UIViewController, UITextFieldDelegate, UITabBarDelegate, GA
             homeViewBanner.delegate=self
         }
         
-        
-        
+        if #available(iOS 13.0, *) {
+            overrideUserInterfaceStyle = .light
+        }
     }
     
     
     
     func adManagement(){
        
-        DispatchQueue.main.asyncAfter(deadline: .now()+6, execute: {
+        DispatchQueue.main.asyncAfter(deadline: .now()+7, execute: {
         if !premiumSubscriptionPurchased && numberOfTimesLaunched > 1 {
             
             
@@ -1163,7 +1178,7 @@ extension CurrencyTable: UITableViewDataSource, UITableViewDelegate{
             selectedCurrencies.remove(at: indexPath.row)
             tableView.deleteRows(at: [indexPath], with: UITableView.RowAnimation.automatic)
             storeFavCurrencies()
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) { // to reload the table after the completion of animation
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) { // to reload the table after the completion of animation
                 tableView.reloadData()
                 if selectedCurrencies.count-1 == 0{
                     self.shareCurrencyText.isHidden=true
@@ -1187,6 +1202,11 @@ extension CurrencyTable: UITableViewDataSource, UITableViewDelegate{
         })
         delete.backgroundColor=#colorLiteral(red: 1, green: 0.1491314173, blue: 0, alpha: 1)
         delete.image = #imageLiteral(resourceName: "DeleteIcon")
+        
+        
+//        delete.image = UIGraphicsImageRenderer(size: CGSize(width: 25, height: 30)).image { _ in
+//            UIImage(named: "DeleteIcon")?.draw(in: CGRect(x: 0, y: 0, width: 25, height: 30))
+//        }
         
         let swap = UIContextualAction(style: .normal, title: "Swap"){(action,view,nil) in
             tableView.setEditing(false, animated: true)
@@ -1285,7 +1305,12 @@ extension CurrencyTable: UITableViewDataSource, UITableViewDelegate{
             self.present(alert, animated: true, completion: nil)
         }
         swap.backgroundColor = #colorLiteral(red: 1, green: 0.5764705882, blue: 0, alpha: 1)
-        swap.image = #imageLiteral(resourceName: "SwapIcon")
+       // swap.image = #imageLiteral(resourceName: "SwapIcon")
+        swap.image = UIGraphicsImageRenderer(size: CGSize(width: 32, height: 35)).image{ _ in
+            UIImage(named: "SwapIcon")?.draw(in: CGRect(x: 0, y: 0, width: 32, height: 35))
+        }
+
+        
         
         
         
@@ -1318,7 +1343,11 @@ extension CurrencyTable: UITableViewDataSource, UITableViewDelegate{
             self.present(activityVC, animated: true, completion: nil)
         })
         share.backgroundColor = #colorLiteral(red: 0.6000000238, green: 0.6000000238, blue: 0.6000000238, alpha: 1)
-        share.image = #imageLiteral(resourceName: "Share")
+        
+        share.image = UIGraphicsImageRenderer(size: CGSize(width: 32, height: 32)).image { _ in
+            UIImage(named: "Share")?.draw(in: CGRect(x: 0, y: 0, width: 32, height: 32))
+        }
+        
         let swipeActionsSet1 = UISwipeActionsConfiguration(actions: [delete,swap,share])
         swipeActionsSet1.performsFirstActionWithFullSwipe = false
         return swipeActionsSet1
@@ -1553,6 +1582,7 @@ extension CurrencyTable: TableCellProtocol, MFMailComposeViewControllerDelegate{
     
     /// Tells the delegate that an interstitial will be presented.
     func interstitialWillPresentScreen(_ ad: GADInterstitial) {
+        tableView.setEditing(false, animated: true)
         print("interstitialWillPresentScreen")
     }
     

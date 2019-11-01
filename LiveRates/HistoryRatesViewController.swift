@@ -281,7 +281,9 @@ class HistoryRatesViewController: UIViewController, UITextFieldDelegate, GADBann
     @IBOutlet weak var toolBarView: UIView!
     override func viewDidLoad() {
          super.viewDidLoad()
-        
+        if #available(iOS 13.0, *) {
+                   overrideUserInterfaceStyle = .light
+               } 
         textView1.layer.masksToBounds=true
         textView1.layer.cornerRadius = textView1.frame.height/2
         
@@ -678,9 +680,9 @@ class HistoryRatesViewController: UIViewController, UITextFieldDelegate, GADBann
     
     func recommendApp(){
          let recommendMessage = "Hello,\nI am using LiveRates app and have found it useful. You might find it useful too. Here is the AppStore link.\n\nhttps://itunes.apple.com/app/liveratescurrencyconverter/id1471361382\n\nCheers!"
-        let recommedViewController = UIActivityViewController(activityItems: [recommendMessage], applicationActivities: nil)
-        recommedViewController.popoverPresentationController?.sourceView = self.view
-        self.present(recommedViewController, animated: true, completion: nil)
+        let recommendViewController = UIActivityViewController(activityItems: [recommendMessage], applicationActivities: nil)
+        recommendViewController.popoverPresentationController?.sourceView = self.view
+        self.present(recommendViewController, animated: true, completion: nil)
     }
     
     func vibrateTextBox(_ viewToShake: UITextField){

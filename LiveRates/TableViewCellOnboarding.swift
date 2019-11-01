@@ -38,6 +38,7 @@ class TableViewCellOnboarding: NSObject {
 
         if self.tableView.numberOfRows(inSection: 0) > 0 {
             var cell = UITableViewCell()
+            
             if selectedCurrencies.count>2{
                 cell = tableView.cellForRow(at: IndexPath(row: 1, section: 0))!
             }else{

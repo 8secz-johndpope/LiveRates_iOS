@@ -69,6 +69,9 @@ class CurrencyCell: UITableViewCell{
   
     override func awakeFromNib() {
         super.awakeFromNib()
+        if #available(iOS 13.0, *) {
+                   overrideUserInterfaceStyle = .light
+               } 
         currencyAttributesStackView.isHidden = true
         currencyLabel.isHidden=true
         doneButton.isHidden = true

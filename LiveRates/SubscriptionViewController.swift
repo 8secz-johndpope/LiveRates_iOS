@@ -132,6 +132,9 @@ class SubscriptionViewController: UIViewController, SKPaymentTransactionObserver
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        if #available(iOS 13.0, *) {
+                   overrideUserInterfaceStyle = .light
+               } 
         startFetchingAlreadyRunning=false
         buyButton.layer.masksToBounds = true
         freeButton.layer.masksToBounds = true

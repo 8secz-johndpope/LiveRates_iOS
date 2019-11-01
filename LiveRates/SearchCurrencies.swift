@@ -110,6 +110,10 @@ class SearchCurrencies: UIViewController,GADBannerViewDelegate,GADInterstitialDe
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        UITextField.appearance(whenContainedInInstancesOf: [UISearchBar.self]).defaultTextAttributes = [NSAttributedString.Key.foregroundColor: UIColor.white]
+        if #available(iOS 13.0, *) {
+                   overrideUserInterfaceStyle = .light
+               } 
         
         self.navigationController?.setNavigationBarHidden(false, animated: true)
         if !premiumSubscriptionPurchased{
@@ -210,7 +214,7 @@ extension SearchCurrencies: UITableViewDelegate,UITableViewDataSource{
         //sectionTitle.textContainerInset = UIEdgeInsets(top: 5, left: 10, bottom: 0, right: 2)
         
         sectionTitle.textColor = #colorLiteral(red: 1, green: 0.5763723254, blue: 0, alpha: 1)
-        sectionTitle.backgroundColor = #colorLiteral(red: 0.0700000003, green: 0.0700000003, blue: 0.0700000003, alpha: 1)
+        sectionTitle.backgroundColor = #colorLiteral(red: 0.1298420429, green: 0.1298461258, blue: 0.1298439503, alpha: 1)
         return sectionTitle
     }
     
@@ -419,9 +423,9 @@ extension SearchCurrencies: UISearchBarDelegate{
     
     func recommend(){
         let recommendMessage = "Hello,\nI am using LiveRates app and have found it useful. You might find it useful too. Here is the AppStore link.\n\nhttps://itunes.apple.com/app/liveratescurrencyconverter/id1471361382\n\nCheers!"
-        let recommedViewController = UIActivityViewController(activityItems: [recommendMessage], applicationActivities: nil)
-        recommedViewController.popoverPresentationController?.sourceView = self.view
-        self.present(recommedViewController, animated: true, completion: nil)
+        let recommendViewController = UIActivityViewController(activityItems: [recommendMessage], applicationActivities: nil)
+        recommendViewController.popoverPresentationController?.sourceView = self.view
+        self.present(recommendViewController, animated: true, completion: nil)
     }
     
     

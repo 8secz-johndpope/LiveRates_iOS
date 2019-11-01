@@ -72,6 +72,9 @@ class SupportViewController: UIViewController, MFMailComposeViewControllerDelega
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        if #available(iOS 13.0, *) {
+                   overrideUserInterfaceStyle = .light
+               } 
        message.layer.masksToBounds = true
        message.layer.cornerRadius = 10
        submitButton.layer.masksToBounds = true
