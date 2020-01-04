@@ -30,7 +30,7 @@ class FaceIDAndTouchIDViewController: UIViewController {
     func faceID_touchID(){
         loginButton.isHidden=true
         if context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: nil){
-            context.evaluatePolicy(LAPolicy.deviceOwnerAuthenticationWithBiometrics, localizedReason: "Use your finger print to login", reply: {(wasCorrect,error) in
+            context.evaluatePolicy(LAPolicy.deviceOwnerAuthenticationWithBiometrics, localizedReason: "Use Touch ID to login", reply: {(wasCorrect,error) in
                 if (wasCorrect)
                 {
                     print("Correct")

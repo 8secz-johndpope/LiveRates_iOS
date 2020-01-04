@@ -348,7 +348,7 @@ class HistoryRatesViewController: UIViewController, UITextFieldDelegate, GADBann
         self.myDatePicker.maximumDate = Calendar.current.date(byAdding: .day, value: -1, to: Date())
        
         var dateComponents = DateComponents()
-        dateComponents.year = -19
+        dateComponents.year = -20
         self.myDatePicker.minimumDate = Calendar.current.date(byAdding: dateComponents,to: Date())
         self.baseAmountToConvert_Current.delegate = self
         self.baseAmountToConvert_Previous.delegate = self

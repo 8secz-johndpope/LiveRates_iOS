@@ -86,6 +86,7 @@ class SearchCurrencies: UIViewController,GADBannerViewDelegate,GADInterstitialDe
     }
     
     override func viewDidAppear(_ animated: Bool) {
+        searchViewController.searchBar.searchTextField.textColor = #colorLiteral(red: 0.8039215803, green: 0.8039215803, blue: 0.8039215803, alpha: 1)
         startFetchingAlreadyRunning=false
         if status != "mailNotAttemped"{
             var alert = UIAlertController()
@@ -110,7 +111,7 @@ class SearchCurrencies: UIViewController,GADBannerViewDelegate,GADInterstitialDe
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        UITextField.appearance(whenContainedInInstancesOf: [UISearchBar.self]).defaultTextAttributes = [NSAttributedString.Key.foregroundColor: UIColor.white]
+        
         if #available(iOS 13.0, *) {
                    overrideUserInterfaceStyle = .light
                } 
