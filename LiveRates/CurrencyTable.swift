@@ -535,9 +535,9 @@ class CurrencyTable: UIViewController, UITextFieldDelegate, UITabBarDelegate, GA
         
     }
     
-    override var preferredStatusBarStyle: UIStatusBarStyle{
-        return .lightContent
-    }
+//    override var preferredStatusBarStyle: UIStatusBarStyle{
+//        return .lightContent
+//    }
 
     func tabBar(_ tabBar: UITabBar, didSelect item: UITabBarItem) {
         if item.tag == 1{
@@ -837,7 +837,7 @@ class CurrencyTable: UIViewController, UITextFieldDelegate, UITabBarDelegate, GA
     
     func adManagement(){
        
-        DispatchQueue.main.asyncAfter(deadline: .now()+7, execute: {
+        DispatchQueue.main.asyncAfter(deadline: .now()+10, execute: {
         if !premiumSubscriptionPurchased && numberOfTimesLaunched > 1 {
             
             
@@ -983,9 +983,12 @@ class CurrencyTable: UIViewController, UITextFieldDelegate, UITabBarDelegate, GA
         }
     }
     @objc func cancelClicked(){
-        let hapticFeedback = UIImpactFeedbackGenerator()
-        hapticFeedback.impactOccurred()
+//        let hapticFeedback = UIImpactFeedbackGenerator()
+//        hapticFeedback.impactOccurred()
         clearButton.isHidden=true
+        baseCurrencyAmount.text = ""
+        reloadTableData()
+        
         print("Cancel Clicked")
         baseCurrencyAmount.resignFirstResponder()
         self.navigationController?.setNavigationBarHidden(false, animated: true)

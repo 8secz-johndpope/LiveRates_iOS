@@ -204,9 +204,9 @@ class HistoryRatesViewController: UIViewController, UITextFieldDelegate, GADBann
     var decimalAdded: Bool = false
     var decimalCount = 0
     var blankView = UIView()
-    override var preferredStatusBarStyle: UIStatusBarStyle{
-        return .lightContent
-    }
+//    override var preferredStatusBarStyle: UIStatusBarStyle{
+//        return .lightContent
+//    }
     
     override func viewDidAppear(_ animated: Bool) {
         startFetchingAlreadyRunning=false

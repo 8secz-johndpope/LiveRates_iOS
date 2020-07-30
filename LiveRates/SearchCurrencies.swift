@@ -86,7 +86,11 @@ class SearchCurrencies: UIViewController,GADBannerViewDelegate,GADInterstitialDe
     }
     
     override func viewDidAppear(_ animated: Bool) {
-        searchViewController.searchBar.searchTextField.textColor = #colorLiteral(red: 0.8039215803, green: 0.8039215803, blue: 0.8039215803, alpha: 1)
+        if #available(iOS 13.0, *) {
+            searchViewController.searchBar.searchTextField.textColor = #colorLiteral(red: 0.8039215803, green: 0.8039215803, blue: 0.8039215803, alpha: 1)
+        } else {
+            // Fallback on earlier versions
+        }
         startFetchingAlreadyRunning=false
         if status != "mailNotAttemped"{
             var alert = UIAlertController()
