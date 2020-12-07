@@ -46,7 +46,7 @@ extension SKProduct {
 
 
 
-let autoRenewableProduct = "com.13148059.LiveRates"
+
 
 
 
@@ -96,9 +96,7 @@ class SubscriptionViewController: UIViewController, SKPaymentTransactionObserver
     @IBOutlet weak var information: UILabel!
     
     @IBAction func restoreButtonClicked(_ sender: Any) {
-        blurView.isHidden = false
-        activityIndicator.startAnimating()
-         self.restorePurchases()
+        self.restorePurchases()
     }
     
    
@@ -237,8 +235,11 @@ class SubscriptionViewController: UIViewController, SKPaymentTransactionObserver
     }
     
     public func restorePurchases() {
-        SKPaymentQueue.default().add(self)
+        blurView.isHidden = false
+        activityIndicator.startAnimating()
         SKPaymentQueue.default().restoreCompletedTransactions()
+        SKPaymentQueue.default().add(self)
+       
         
     }
 
@@ -255,9 +256,10 @@ class SubscriptionViewController: UIViewController, SKPaymentTransactionObserver
                     
                 case .purchased:
                     SKPaymentQueue.default().finishTransaction(transaction as! SKPaymentTransaction)
-                    receiptValidation(){(receiptVerified) in
-                        print("Receipt Verified")
-                        if premiumSubscriptionPurchased{
+                    premiumSubscriptionPurchased=true
+                  //  receiptValidation(){(receiptVerified) in
+                    //    print("Receipt Verified")
+                      //  if premiumSubscriptionPurchased{
                             let alert = UIAlertController(title: "Switch to Premium Version", message: "Enjoy using LiveRates as a premium user", preferredStyle: .alert)
                             alert.addAction(UIAlertAction(title: "Switch", style: .default, handler: { (action) in
                                 switch action.style{
@@ -283,13 +285,19 @@ class SubscriptionViewController: UIViewController, SKPaymentTransactionObserver
                             DispatchQueue.main.asyncAfter(deadline: .now()+1, execute: {
                                 self.present(alert, animated: true, completion: nil)
                             })
-                        }
-                    }
+                      //  }
+                  //  }
+                    self.blurView.isHidden=true
+                    self.activityIndicator.stopAnimating()
                     break
                     
                 case .restored:
                     print("restored")
-                    receiptValidation(){(receiptVerified) in
+                    premiumSubscriptionPurchased=true
+                    restoreStatus=true
+                    self.blurView.isHidden=true
+                    self.activityIndicator.stopAnimating()
+                  //  receiptValidation(){(receiptVerified) in
                         if restoreStatus{
                             print("Restore Status Alerted")
                             SKPaymentQueue.default().finishTransaction(transaction as! SKPaymentTransaction)
@@ -318,7 +326,11 @@ class SubscriptionViewController: UIViewController, SKPaymentTransactionObserver
                             DispatchQueue.main.asyncAfter(deadline: .now()+1, execute: {
                                 self.present(alert, animated: true, completion: nil)
                             })
+                            
                         }else{
+                            SKPaymentQueue.default().finishTransaction(transaction as! SKPaymentTransaction)
+                            self.blurView.isHidden=true
+                            self.activityIndicator.stopAnimating()
                             print("Alerted")
                             let alert = UIAlertController(title: "Restore unsuccessful", message: "No previous purchases found to restore", preferredStyle: .alert)
                             alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { (action) in
@@ -344,7 +356,7 @@ class SubscriptionViewController: UIViewController, SKPaymentTransactionObserver
                             SKPaymentQueue.default().finishTransaction(transaction as! SKPaymentTransaction)
                         }
                         
-                    }
+                   // }
                     break
                     
                 case .failed:
@@ -381,6 +393,8 @@ class SubscriptionViewController: UIViewController, SKPaymentTransactionObserver
                     break
                     
                 default:
+                    self.blurView.isHidden=true
+                    self.activityIndicator.stopAnimating()
                     break
                 }
                 break

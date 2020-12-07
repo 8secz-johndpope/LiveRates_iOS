@@ -253,11 +253,11 @@ class CurrencyTable: UIViewController, UITextFieldDelegate, UITabBarDelegate, GA
                         numberFormatter.numberStyle = .decimal
                         numberFormatter.maximumFractionDigits = 2
                         let value = numberFormatter.string(from: NSNumber(value: Double(cValue)*Double(baseCurrencyAmountGlobal)!))
-                        text = "\(i)). Rate:\n     1 \(self.baseCurrency.text!) = \(cValueText) \(selectedCurrenciesForSharing[i])\n     Conversion:\n     \(baseCurrencyAmount.text!) \(self.baseCurrency.text!) = \(value!) \(selectedCurrenciesForSharing[i])\n\n"
+                        text = "\(i)) Rate:\n     1 \(self.baseCurrency.text!) = \(cValueText) \(selectedCurrenciesForSharing[i])\n     Conversion:\n     \(baseCurrencyAmount.text!) \(self.baseCurrency.text!) = \(value!) \(selectedCurrenciesForSharing[i])\n\n"
                     shareText = shareText + text
                         
                     }else{
-                        text = "\(i)). Rate:\n     1 \(self.baseCurrency.text!) = \(cValueText) \(selectedCurrenciesForSharing[i])\n\n"
+                        text = "\(i)) Rate:\n     1 \(self.baseCurrency.text!) = \(cValueText) \(selectedCurrenciesForSharing[i])\n\n"
                          shareText = shareText + text
                     }
                 }
@@ -332,11 +332,11 @@ class CurrencyTable: UIViewController, UITextFieldDelegate, UITabBarDelegate, GA
                     numberFormatter.numberStyle = .decimal
                     numberFormatter.maximumFractionDigits = 2
                     let value = numberFormatter.string(from: NSNumber(value: Double(cValue)*Double(baseCurrencyAmountGlobal)!))
-                    text = "\(i)). Rate:\n     1 \(self.baseCurrency.text!) = \(cValueText) \(selectedCurrenciesForSharing[i])\n     Conversion:\n     \(baseCurrencyAmount.text!) \(self.baseCurrency.text!)\n       =\n       \(value!) \(selectedCurrenciesForSharing[i])\n\n"
+                    text = "\(i)) Rate:\n     1 \(self.baseCurrency.text!) = \(cValueText) \(selectedCurrenciesForSharing[i])\n     Conversion:\n     \(baseCurrencyAmount.text!) \(self.baseCurrency.text!)\n       =\n       \(value!) \(selectedCurrenciesForSharing[i])\n\n"
                     shareText = shareText + text
                     
                 }else{
-                    text = "\(i)). Rate:\n     1 \(self.baseCurrency.text!) = \(cValueText) \(selectedCurrenciesForSharing[i])\n\n"
+                    text = "\(i)) Rate:\n     1 \(self.baseCurrency.text!) = \(cValueText) \(selectedCurrenciesForSharing[i])\n\n"
                     shareText = shareText + text
                 }
             }
@@ -837,7 +837,7 @@ class CurrencyTable: UIViewController, UITextFieldDelegate, UITabBarDelegate, GA
     
     func adManagement(){
        
-        DispatchQueue.main.asyncAfter(deadline: .now()+10, execute: {
+        DispatchQueue.main.asyncAfter(deadline: .now()+20, execute: {
         if !premiumSubscriptionPurchased && numberOfTimesLaunched > 1 {
             
             
@@ -1333,11 +1333,11 @@ extension CurrencyTable: UITableViewDataSource, UITableViewDelegate{
                 numberFormatter.numberStyle = .decimal
                 numberFormatter.maximumFractionDigits = 2
                 let value = numberFormatter.string(from: NSNumber(value: Double(cValue)*Double(baseCurrencyAmountGlobal)!))
-                currencyInfo = "\(1)). Rate:\n     1 \(self.baseCurrency.text!) = \(cValueText) \(selectedCurrencies[indexPath.row].currName)\n     Conversion:\n     \(self.baseCurrencyAmount.text!) \(self.baseCurrency.text!) = \(value!) \(selectedCurrencies[indexPath.row].currName)\n\n"
+                currencyInfo = "\(1)) Rate:\n     1 \(self.baseCurrency.text!) = \(cValueText) \(selectedCurrencies[indexPath.row].currName)\n     Conversion:\n     \(self.baseCurrencyAmount.text!) \(self.baseCurrency.text!) = \(value!) \(selectedCurrencies[indexPath.row].currName)\n\n"
                 currencyInfoText = "Forex Rates"+"\n\n"+currencyInfo+"Last updated on \(lastUpdated)\n\n"+"By: LiveRates"
             }
             else{
-                currencyInfo = "\(1)). Rate:\n     1 \(self.baseCurrency.text!) = \(cValueText) \(selectedCurrencies[indexPath.row].currName)\n\n"
+                currencyInfo = "\(1)) Rate:\n     1 \(self.baseCurrency.text!) = \(cValueText) \(selectedCurrencies[indexPath.row].currName)\n\n"
                 currencyInfoText = "Forex Rates"+"\n\n"+currencyInfo+"Last updated on \(lastUpdated)\n\n"+"By: LiveRates"
             }
             

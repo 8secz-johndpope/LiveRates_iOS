@@ -26,7 +26,7 @@ var calledFromBackground = false
 var calledFromSubscription = false
 
 //#if DEBUG
-//let verifyReceiptURL = "https1://sandbox.itunes.apple.com/verifyReceipt1"
+//let verifyReceiptURL = "https://sandbox.itunes.apple.com/verifyReceipt"
 //#else
 let verifyReceiptURL = "https://buy.itunes.apple.com/verifyReceipt"
 //#endif
@@ -409,6 +409,8 @@ var startAppHomeAlreadyLoaded=false
 var startAppConversionAlreadyLoaded=false
 var admobHomeInterstitialAlreadyLoaded=false
 var admobConversionInterstitalAlreadyLoaded=false
+
+let autoRenewableProduct = "com.13148059.LiveRates"
 
 class FetchValues: UIViewController, GADInterstitialDelegate, SKProductsRequestDelegate, STADelegateProtocol{
     
@@ -811,7 +813,7 @@ func receiptValidation(completion: @escaping (Bool)->Void) {
         completion(receiptVerified)
         return
     }
-    let jsonDict: [String: AnyObject] = ["receipt-data" : recieptString as AnyObject, "password" : "9f4e2f62956a49499f00114af3793ffb" as AnyObject]
+    let jsonDict: [String: AnyObject] = ["receipt-data" : recieptString as AnyObject, "password" : "3601a20d09794f0f8702d9fd02ff7ddb" as AnyObject]
     
     do {
         let requestData = try JSONSerialization.data(withJSONObject: jsonDict, options: JSONSerialization.WritingOptions.prettyPrinted)
@@ -833,7 +835,7 @@ func receiptValidation(completion: @escaping (Bool)->Void) {
                 }
                 
                 let jsonResponse = try JSONSerialization.jsonObject(with: receivedData, options: JSONSerialization.ReadingOptions.mutableContainers)
-                //  print("=======>",jsonResponse)
+                  print("=======>",jsonResponse)
                 if let expiryDate = getExpirationDateFromResponse(jsonResponse as! NSDictionary) {
                     let formatterForReceipt = DateFormatter()
                     formatterForReceipt.dateFormat = "yyyy-MM-dd HH:mm:ss VV"
